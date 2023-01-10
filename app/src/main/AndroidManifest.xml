@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
@@ -19,7 +19,7 @@
         android:theme="@style/Theme.SNS_project"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,19 +42,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity">
+            android:name=".activity.LoginActivity">
         </activity>
         <activity
-            android:name=".SignUpActivity">
+            android:name=".activity.SignUpActivity">
         </activity>
         <activity
-            android:name=".PasswordResetActivity">
+            android:name=".activity.PasswordResetActivity">
         </activity>
         <activity
-            android:name=".MemberinitActivity">
+            android:name=".activity.MemberinitActivity">
         </activity>
         <activity
-            android:name=".CameraActivity">
+            android:name=".activity.CameraActivity">
+        </activity>
+        <activity
+            android:name=".activity.GalleryActivity">
         </activity>
     </application>
 
