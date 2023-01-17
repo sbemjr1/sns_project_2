@@ -4,14 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="10dp"
     tools:context=".activity.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/textView"
@@ -39,6 +38,7 @@
                     android:id="@+id/profileImageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
                     app:srcCompat="@android:drawable/sym_def_app_icon" />
             </androidx.cardview.widget.CardView>
 
@@ -90,6 +90,7 @@
         android:layout_alignParentBottom="true"
         android:elevation="10dp"
         android:visibility="gone"
+        app:cardBackgroundColor="#009688"
         app:cardCornerRadius="15dp">
 
         <LinearLayout
@@ -114,4 +115,9 @@
 
     </androidx.cardview.widget.CardView>
 
+    <include
+        layout="@layout/view_loader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 </RelativeLayout>

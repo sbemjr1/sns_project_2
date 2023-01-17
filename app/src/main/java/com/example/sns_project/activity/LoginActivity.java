@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,7 +17,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BasicActivity {
     private FirebaseAuth mAuth;
 
 
@@ -51,10 +52,14 @@ public class LoginActivity extends AppCompatActivity {
         String password = ((EditText)findViewById(R.id.passwordEditText)).getText().toString();
 
         if(email.length() > 0 && password.length() > 0){
+            final RelativeLayout loaderLayout = findViewById(R.id.loaderLayout);
+            loaderLayout.setVisibility(View.VISIBLE);
+
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
+                            loaderLayout.setVisibility(View.GONE);
                             if (task.isSuccessful()) {
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 startToast("로그인에 성공했습니다.");

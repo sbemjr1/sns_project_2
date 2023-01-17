@@ -13,7 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
+ import android.widget.RelativeLayout;
+ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
  import androidx.core.content.ContextCompat;
 
 
+ import com.bumptech.glide.Glide;
  import com.example.sns_project.MemberInfo;
  import com.example.sns_project.R;
  import com.google.android.gms.tasks.Continuation;
@@ -41,11 +43,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-public class MemberinitActivity extends AppCompatActivity {
-    private  static  final String TAG = "MemberInitActivity";
+public class MemberinitActivity extends BasicActivity {
+    private static final String TAG = "MemberInitActivity";
     private ImageView profileImageView;
+    private RelativeLayout loaderLayout;
     private String profilePath;
-    FirebaseUser user;
+    private FirebaseUser user;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -53,6 +56,7 @@ public class MemberinitActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_member_init);
 
+        loaderLayout = findViewById(R.id.loaderLayout);
         profileImageView = findViewById(R.id.profileImageView);
         profileImageView.setOnClickListener(onClickListener);
 
@@ -74,9 +78,7 @@ public class MemberinitActivity extends AppCompatActivity {
             case 0: {
                 if (resultCode == Activity.RESULT_OK) {
                     profilePath = data.getStringExtra("profilePath");
-                    Log.e("로그","profilePath"+profilePath);
-                    Bitmap bmp = BitmapFactory.decodeFile(profilePath);
-                    profileImageView.setImageBitmap(bmp);
+                    Glide.with(this).load(profilePath).centerCrop().override(500).into(profileImageView);
                 }
                 break;
             }
@@ -86,15 +88,15 @@ public class MemberinitActivity extends AppCompatActivity {
     View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.checkButton:
-                    profileUpdate();
+                    storageUploader();
                     break;
                 case R.id.profileImageView:
-                    CardView cardView =findViewById((R.id.buttonsCardView));
-                    if(cardView.getVisibility() == View.VISIBLE) {
+                    CardView cardView = findViewById((R.id.buttonsCardView));
+                    if (cardView.getVisibility() == View.VISIBLE) {
                         cardView.setVisibility(View.GONE);
-                    }else{
+                    } else {
                         cardView.setVisibility(View.VISIBLE);
                     }
                     break;
@@ -102,59 +104,32 @@ public class MemberinitActivity extends AppCompatActivity {
                     myStartActivity(CameraActivity.class);
                     break;
                 case R.id.gallery:
-                    if (ContextCompat.checkSelfPermission(MemberinitActivity.this,
-                            Manifest.permission.READ_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(MemberinitActivity.this,
-                                Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                            ActivityCompat.requestPermissions(MemberinitActivity.this,
-                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                        } else {
-                            ActivityCompat.requestPermissions(MemberinitActivity.this,
-                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                            startToast("권한을 허용해 주세요.");
-                        }
-                    }else {
-                        myStartActivity(GalleryActivity.class);
-                    }
+                    myStartActivity(GalleryActivity.class);
                     break;
             }
         }
     };
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1:{
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    myStartActivity(GalleryActivity.class);
-                } else {
-                    startToast("권한을 허용해 주세요.");
-                }
-        }
-    }
-}
-
-    private void profileUpdate() {
-        final String name = ((EditText)findViewById(R.id.nameEditText)).getText().toString();
-        final String phoneNumber = ((EditText)findViewById(R.id.phoneNumberEditText)).getText().toString();
-        final String birthDay = ((EditText)findViewById(R.id.birthDayEditText)).getText().toString();
-        final String address = ((EditText)findViewById(R.id.addressEditText)).getText().toString();
+    private void storageUploader() {
+        final String name = ((EditText) findViewById(R.id.nameEditText)).getText().toString();
+        final String phoneNumber = ((EditText) findViewById(R.id.phoneNumberEditText)).getText().toString();
+        final String birthDay = ((EditText) findViewById(R.id.birthDayEditText)).getText().toString();
+        final String address = ((EditText) findViewById(R.id.addressEditText)).getText().toString();
 
 
-        if(name.length() > 0 && phoneNumber.length() > 9 && birthDay.length() > 5 && address.length() > 0){
+        if (name.length() > 0 && phoneNumber.length() > 9 && birthDay.length() > 5 && address.length() > 0) {
+            loaderLayout.setVisibility(View.VISIBLE);
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference storageRef = storage.getReference();
 
             user = FirebaseAuth.getInstance().getCurrentUser();
-            final StorageReference mountainImagesRef = storageRef.child("users/"+user.getUid()+"/profileImage.jpg");
+            final StorageReference mountainImagesRef = storageRef.child("users/" + user.getUid() + "/profileImage.jpg");
 
-            if(profilePath == null){
+            if (profilePath == null) {
                 MemberInfo memberInfo = new MemberInfo(name, phoneNumber, birthDay, address);
-                uploader(memberInfo);
-            }else
-                try{
+                storeUploader(memberInfo);
+            } else {
+                try {
                     InputStream stream = new FileInputStream(new File(profilePath));
                     UploadTask uploadTask = mountainImagesRef.putStream(stream);
                     uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -171,31 +146,29 @@ public class MemberinitActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 Uri downloadUri = task.getResult();
                                 MemberInfo memberInfo = new MemberInfo(name, phoneNumber, birthDay, address, downloadUri.toString());
-                                uploader(memberInfo);
+                                storeUploader(memberInfo);
                             } else {
                                 startToast("회원정보를 보내는데 실패하였습니다.");
                             }
                         }
                     });
-                }catch (FileNotFoundException e){
-                    Log.e("로그","에러"+e.toString());
+                } catch (FileNotFoundException e) {
+                    Log.e("로그", "에러" + e.toString());
                 }
-        }else{
+            }
+        } else {
             startToast("회원정보를 입력해주세요.");
         }
-
-    }
-    private void startToast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    private  void uploader(MemberInfo memberInfo){
+    private void storeUploader(MemberInfo memberInfo) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users").document(user.getUid()).set(memberInfo)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         startToast("회원정보 등록을 성공하였습니다.");
+                        loaderLayout.setVisibility(View.GONE);
                         finish();
                     }
                 })
@@ -203,9 +176,15 @@ public class MemberinitActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         startToast("회원정보 등록에 실패하였습니다.");
+                        loaderLayout.setVisibility(View.GONE);
+                        ;
                         Log.w(TAG, "Error writing document", e);
                     }
                 });
+    }
+
+    private void startToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     private void myStartActivity(Class c) {
