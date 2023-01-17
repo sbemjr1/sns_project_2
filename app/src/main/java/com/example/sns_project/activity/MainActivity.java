@@ -66,13 +66,17 @@ public class MainActivity extends BasicActivity {
             });
         }
         recyclerView = findViewById(R.id.recyclerView);
+        /*
         findViewById(R.id.logoutButton).setOnClickListener(onClickListener);
+
+         */
         findViewById(R.id.floatingActionButton).setOnClickListener(onClickListener);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
     }
 
+    @Override
     protected void onResume(){
         super.onResume();
 
@@ -87,10 +91,12 @@ public class MainActivity extends BasicActivity {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     Log.d(TAG, document.getId() + " => " + document.getData());
                                     postList.add(
-                                            new PostInfo(document.getData().get("title").toString(),
+                                            new PostInfo(
+                                                    document.getData().get("title").toString(),
                                                     (ArrayList<String>) document.getData().get("contents"),
                                                     document.getData().get("publisher").toString(),
-                                                    new Date(document.getDate("createdAt").getTime())
+                                                    new Date(document.getDate("createdAt").getTime()),
+                                                    document.getId()
                                             ));
                                 }
 
@@ -108,11 +114,13 @@ public class MainActivity extends BasicActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-
+/*
                 case R.id.logoutButton:
                     FirebaseAuth.getInstance().signOut();
                     myStartActivity(SignUpActivity.class);
                     break;
+
+ */
 
                 case R.id.floatingActionButton:
                     myStartActivity(WritePostActivity.class);
