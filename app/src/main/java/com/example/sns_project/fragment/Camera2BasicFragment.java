@@ -62,6 +62,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.sns_project.R;
+import com.example.sns_project.view.AutoFitTextureView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -74,8 +75,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import com.example.sns_project.view.AutoFitTextureView;
 
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
